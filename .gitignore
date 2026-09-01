@@ -70,3 +70,8 @@ typings/
 # Mac OS
 .DS_Store
 
+.remember/
+.claude/
+.serenasitter/
+DESIGN.md
+.mcp.json
