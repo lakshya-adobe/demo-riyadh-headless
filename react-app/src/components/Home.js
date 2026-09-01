@@ -6,29 +6,22 @@ NOTICE: Adobe permits you to use, modify, and distribute this file in
 accordance with the terms of the Adobe license agreement accompanying
 it.
 */
-import React, {useState} from 'react';
-import Adventures from './Adventures';
+import React from 'react';
+import HeroBanner from './HeroBanner';
+import Destinations from './Destinations';
 
 /***
- * Displays a grid of current adventures
+ * Displays the video hero banner and a grid of Riyadh Air destinations
  */
- function Home() {
-    const [adventureActivity, setAdventureActivity] = useState('');
-
+function Home() {
     return (
       <div className="Home">
-        <h2>Current Adventures</h2>
-        <div className="adventure-nav">
-          <button onClick={() => setAdventureActivity('')}>All</button>
-          <button onClick={() => setAdventureActivity('Camping')}>Camping</button>
-          <button onClick={() => setAdventureActivity('Cycling')}>Cycling</button>
-          <button onClick={() => setAdventureActivity('Rock Climbing')}>Rock Climbing</button>
-          <button onClick={() => setAdventureActivity('Skiing')}>Skiing</button>
-          <button onClick={() => setAdventureActivity('Social')}>Social</button>
-          <button onClick={() => setAdventureActivity('Surfing')}>Surfing</button>
+        <HeroBanner />
+        <div className="page">
+          <h2>Explore Destinations</h2>
+          <Destinations />
         </div>
-        <Adventures adventureActivity={adventureActivity} />
-    </div>
+      </div>
     );
 }
 

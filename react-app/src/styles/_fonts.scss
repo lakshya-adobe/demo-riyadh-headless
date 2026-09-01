@@ -1,0 +1,35 @@
+/*
+Copyright 2020 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+// _fonts.scss
+// Riyadh Air brand typeface (loewRiyadhAir).
+// Files live in ../fonts and are fingerprinted by webpack at build time.
+
+@font-face {
+  font-family: "loewRiyadhAir";
+  src: url("../fonts/loewRiyadhAir-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "loewRiyadhAir";
+  src: url("../fonts/loewRiyadhAir-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "loewRiyadhAir";
+  src: url("../fonts/loewRiyadhAir-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

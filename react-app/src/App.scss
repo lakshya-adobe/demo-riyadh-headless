@@ -10,6 +10,7 @@ it.
 /* Normalize */
 @import '~normalize-scss/sass/normalize';
 @import './styles/variables';
+@import './styles/fonts';
 
 body {
     background-color: $body-bg;
@@ -21,6 +22,7 @@ body {
     color: $text-color;
     line-height: $line-height-base;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 // Headings
@@ -28,25 +30,27 @@ body {
 
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-line-height: $line-height-base;
-color: $text-color;
+  line-height: 1.2;
+  color: $text-color;
 }
 
 h1, .h1,
 h2, .h2,
 h3, .h3 {
-font-family: $font-family-serif;
-font-weight: $font-weight-normal;
-margin-top: $line-height-computed;
-margin-bottom: math.div($line-height-computed, 2);
+  font-family: $font-family-serif;
+  font-weight: $font-weight-normal; // brand headings are weight 400
+  margin-top: $line-height-computed;
+  margin-bottom: math.div($line-height-computed, 2);
+  letter-spacing: -0.01em;
 }
 
 h4, .h4,
 h5, .h5,
 h6, .h6 {
-font-family: $font-family-sans-serif;
-text-transform: uppercase;
-font-weight: $font-weight-bold;
+  font-family: $font-family-sans-serif;
+  text-transform: uppercase;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.06em;
 }
 
 h1, .h1 { font-size: $font-size-h1; }
@@ -59,86 +63,104 @@ h6, .h6 { font-size: $font-size-h6; }
 a {
   color: $link-color;
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 h1 a, h2 a, h3 a {
-    color: $text-color;
+  color: $text-color;
 }
 
 h1 u, h2 u, h3 u {
-    text-decoration: none;
-    border-bottom: 1px #ededed solid;
+  text-decoration: none;
+  border-bottom: 1px solid $border-color;
 }
 
 // Body text
 // -------------------------
 
 p {
-margin: 0 0 math.div($line-height-computed , 2);
-font-size: $font-size-base;
-line-height: $line-height-base + 0.75;
-text-align: justify;
+  margin: 0 0 $space-md;
+  font-size: $font-size-base;
+  line-height: 1.6;
+  text-align: left;
+  color: $text-color;
 }
 
-
 ul {
-    list-style-position: inside;
+  list-style-position: inside;
 }
 
 ol, ul {
-    padding-left: 0;
-    margin-bottom: 0;
+  padding-left: 0;
+  margin-bottom: 0;
 }
 
 hr {
-    border: none;
-    border-bottom: 1px solid $gray-light;
+  border: none;
+  border-bottom: 1px solid $border-color;
 }
+
+// Buttons
+// -------------------------
+// Riyadh Air pill: indigo outline by default, filled indigo when selected.
 
 button {
-  background-color: $black;
-  color: $white;
-  text-transform: uppercase;
-  font-size: $font-size-base;
+  background-color: $white;
+  color: $indigo;
+  font-size: $font-size-medium;
+  font-weight: $font-weight-bold;
   font-family: $font-family-base;
-  border: none;
-  padding: 0.5em;
+  border: 1.5px solid $indigo;
+  border-radius: $radius-pill;
+  padding: $space-sm $space-lg;
   min-width: 4rem;
-  margin-right: 1rem;
+  margin-right: $space-md;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
-  &:focus, &:active{
-    background-color: $white;
-    color: $black;
-    border: 1px solid $black;
+  &:hover {
+    background-color: rgba($indigo, 0.06);
+  }
+
+  &:focus, &:active {
+    background-color: $indigo;
+    color: $white;
+    outline: none;
   }
 }
-.App {
-  max-width: $max-width;
-  margin: 0 auto;
-  padding-left: 14px;
-  padding-right: 14px;
+
+// Shell keeps the footer pinned to the bottom on short pages
+.site-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.logo {
-  width: 128px;
-  height: 48px;
-  margin: 20px 0px 10px 0px;
+.App {
+  flex: 1;
+  width: 100%;
+}
+
+// Centered content container for full-width sections to sit inside
+.page {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: $space-xl 14px $space-xxl;
 }
 
 // Error
 .error {
-  /*position: absolute;
-  top: 50%;
-  left: 0;*/
   margin-top: 2em;
   width: 100%;
   text-align: left;
 
   &-message {
-    color: $red;
+    color: $brand-primary;
+    font-weight: $font-weight-bold;
   }
-
 }
 
 // Loading
@@ -148,4 +170,5 @@ button {
   width: 100%;
   left: 0;
   text-align: center;
+  color: $text-color-secondary;
 }

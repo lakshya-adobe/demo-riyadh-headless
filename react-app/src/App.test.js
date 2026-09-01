@@ -10,8 +10,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders the Riyadh Air logo', () => {
   render(<App />);
-  const logoElement = screen.getByAltText(/WKND Logo/i);
+  const logoElement = screen.getByAltText(/Riyadh Air/i);
   expect(logoElement).toBeInTheDocument();
 });

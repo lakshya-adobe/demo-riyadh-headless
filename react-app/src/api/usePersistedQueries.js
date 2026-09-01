@@ -64,37 +64,23 @@ async function fetchPersistedQuery(persistedQueryName, queryParameters) {
 }
 
 /**
- * React custom hook that returns a list of adventures by activity. If no activity is provided, all adventures are returned.
- * 
- * Custom hook that calls the '[graphql endpoint namespace]/adventures-all' or '[graphql endpoint namespace]/adventures-by-activity' persisted query.
+ * React custom hook that returns the full list of destinations.
  *
- * @returns an array of Adventure JSON objects, and array of errors
+ * Calls the '[graphql endpoint namespace]/destinations-all' persisted query.
+ *
+ * @returns an array of Destination JSON objects, and any errors
  */
-export function useAdventuresByActivity(adventureActivity, params) {
-  const [adventures, setAdventures] = useState(null);
+export function useDestinations(params) {
+  const [destinations, setDestinations] = useState(null);
   const [errors, setErrors] = useState(null);
 
-  // Use React useEffect to manage state changes
   useEffect(() => {
     async function fetchData() {
+      // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/destinations-all"
+      const response = await fetchPersistedQuery(REACT_APP_GRAPHQL_ENDPOINT + "/destinations-all", params);
 
-      let queryVariables = params;
-      let response;
-
-      // if an activity is set (i.e "Camping", "Hiking"...) call [graphql endpoint namespace]/adventures-by-activity query
-      if (adventureActivity) {
-        // The key is 'activity' as defined in the persisted query
-        queryVariables = { ...queryVariables, activity: adventureActivity };
-
-        // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/adventures-by-activity" with parameters
-        response = await fetchPersistedQuery(REACT_APP_GRAPHQL_ENDPOINT + "/adventures-by-activity", queryVariables);
-      } else {
-        // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/adventures-all"
-        response = await fetchPersistedQuery(REACT_APP_GRAPHQL_ENDPOINT + "/adventures-all", queryVariables);
-      }
-
-      // Sets the adventures variable to the list of adventure JSON objects
-      setAdventures(response.data?.adventureList?.items);
+      // Set the destinations to the list of destination JSON objects
+      setDestinations(response.data?.destinationsList?.items);
 
       // Set any errors
       setErrors(response.err);
@@ -102,60 +88,55 @@ export function useAdventuresByActivity(adventureActivity, params) {
     // Call the internal fetchData() as per React best practices
     fetchData();
 
-  }, [adventureActivity, params]);
+  }, [params]);
 
-  // Returns the adventures and errors
-  return { adventures, errors };
+  // Returns the destinations and errors
+  return { destinations, errors };
 }
 
 /**
- * Calls the '[graphql endpoint namespace]/adventure-by-slug' persisted query with `slug` parameter.
+ * Calls the '[graphql endpoint namespace]/destination-by-path' persisted query with a `destinationPath` parameter.
  *
- * @param {String!} slugName the adventure slug
- * @returns a JSON object representing the Adventure
+ * @param {String!} destinationPath the destination content-fragment path
+ * @param {Object} params optional image-transform parameters (imageFormat, imageSeoName, imageWidth, imageQuality)
+ * @returns a JSON object representing the Destination
  */
-export function useAdventureBySlug(slugName, params) {
-  const [adventure, setAdventure] = useState(null);
-  const [references, setReferences] = useState(null);
+export function useDestinationByPath(destinationPath, params) {
+  const [destination, setDestination] = useState(null);
   const [errors, setErrors] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-
-      let response;
-
-      // The key is 'slug' as defined in the persisted query
-      const queryVariables = { 
+      // The key is 'destinationPath' as defined in the persisted query
+      const queryVariables = {
         ...params,
-        slug: slugName,
+        destinationPath,
       };
 
-      // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/adventure-by-slug" with parameters
-      response = await fetchPersistedQuery(
-        REACT_APP_GRAPHQL_ENDPOINT + "/adventure-by-slug",
+      // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/destination-by-path" with parameters
+      const response = await fetchPersistedQuery(
+        REACT_APP_GRAPHQL_ENDPOINT + "/destination-by-path",
         queryVariables
       );
 
       if (response.err) {
         // Capture errors from the HTTP request
         setErrors(response.err);
-      } else if (response.data?.adventureList?.items?.length === 1) {
-        // Set the Adventure data after data validation
-        setAdventure(response.data.adventureList.items[0]);
-        setReferences(response.data.adventureList._references);
+      } else if (response.data?.destinationsByPath?.item) {
+        // Set the Destination data after data validation
+        setDestination(response.data.destinationsByPath.item);
       } else {
-        // Set an error if no Adventure could be found
-        setErrors(`Cannot find Adventure with slug: ${slugName}`);
+        // Set an error if no Destination could be found
+        setErrors(`Cannot find Destination at path: ${destinationPath}`);
       }
-
     }
 
     // Call the internal fetchData() as per React best practices
     fetchData();
 
-  }, [slugName, params]);
+  }, [destinationPath, params]);
 
-  return { adventure, references, errors };
+  return { destination, errors };
 }
 
 

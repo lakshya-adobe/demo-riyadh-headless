@@ -1,0 +1,82 @@
+/*
+Copyright 2022 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+@import '../styles/variables';
+
+.destination-detail {
+  width: 100%;
+  max-width: 820px;
+}
+
+.destination-detail-close-button {
+  width: 40px;
+  height: 40px;
+  float: right;
+  margin: $space-md 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $surface;
+  border: 1px solid $border-color;
+  border-radius: $radius-pill;
+  box-shadow: $shadow-card;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: $off-white;
+    text-decoration: none;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.destination-detail-country {
+  clear: both;
+  margin: 0 0 $space-xs;
+  padding-top: $space-lg;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: $font-size-small;
+  font-weight: $font-weight-bold;
+  color: $indigo;
+}
+
+.destination-detail-city {
+  margin: 0 0 $space-lg;
+}
+
+.destination-detail-image {
+  width: 100%;
+  height: auto;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  margin-bottom: $space-lg;
+  display: block;
+}
+
+.destination-detail-body {
+  color: $text-color;
+
+  p {
+    margin: 0 0 $space-md;
+    line-height: 1.6;
+  }
+
+  // Inline images embedded in the authored rich text.
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: $radius-card;
+    box-shadow: $shadow-card;
+    margin: $space-lg 0;
+  }
+}

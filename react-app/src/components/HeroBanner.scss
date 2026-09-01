@@ -1,0 +1,128 @@
+/*
+Copyright 2022 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+@import '../styles/variables';
+
+.hero-banner {
+  position: relative;
+  width: 100%;
+  height: 68vh;
+  min-height: 420px;
+  max-height: 680px;
+  overflow: hidden;
+  background: $header-bg; // shown while the video loads
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+// Readability scrim: darker at the bottom where the copy sits
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: linear-gradient(180deg, rgba(2, 8, 23, 0.15) 0%, rgba(2, 8, 23, 0.15) 45%, rgba(2, 8, 23, 0.75) 100%);
+}
+
+.hero-content {
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 0 $space-lg $space-xxl;
+  color: $white;
+}
+
+.hero-eyebrow {
+  margin: 0 0 $space-sm;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: $font-size-small;
+  font-weight: $font-weight-bold;
+  color: rgba($white, 0.9);
+}
+
+.hero-title {
+  margin: 0 0 $space-sm;
+  color: $white;
+  font-size: 56px;
+  font-weight: $font-weight-normal;
+  line-height: 1.05;
+}
+
+.hero-subtitle {
+  margin: 0;
+  color: rgba($white, 0.9);
+  font-size: $font-size-large;
+  font-weight: $font-weight-normal;
+  line-height: 1.3;
+}
+
+.hero-mute-toggle {
+  position: absolute;
+  right: $space-lg;
+  bottom: $space-lg;
+  width: 44px;
+  height: 44px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  background: rgba(2, 8, 23, 0.45);
+  border: 1px solid rgba($white, 0.4);
+  border-radius: $radius-pill;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(2, 8, 23, 0.65);
+    border-color: rgba($white, 0.7);
+  }
+
+  &:focus, &:active {
+    background: rgba(2, 8, 23, 0.65);
+    color: $white;
+    outline: none;
+  }
+}
+
+@media only screen and (max-width: $tablet-breakpoint) {
+  .hero-content {
+    padding-left: $space-lg;
+    padding-right: $space-lg;
+  }
+
+  .hero-title {
+    font-size: 40px;
+  }
+}
+
+@media only screen and (max-width: $mobile-breakpoint) {
+  .hero-banner {
+    height: 56vh;
+    min-height: 340px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: $font-size-medium;
+  }
+}

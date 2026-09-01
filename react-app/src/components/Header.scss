@@ -1,0 +1,130 @@
+/*
+Copyright 2022 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+@import '../styles/variables';
+
+// Full-bleed dark indigo bar, matches riyadhair.com
+.site-header {
+  width: 100%;
+  background: $header-bg;
+}
+
+.site-header-inner {
+  max-width: 1360px;
+  height: $header-height;
+  margin: 0 auto;
+  padding: 0 $space-lg;
+  display: flex;
+  align-items: center;
+  gap: $space-lg;
+}
+
+.site-logo-link {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.site-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+// Primary navigation, centered
+.site-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $space-xl;
+}
+
+.site-nav-link {
+  color: $white;
+  font-size: $font-size-medium;
+  font-weight: $font-weight-normal;
+  white-space: nowrap;
+  opacity: 0.92;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: none;
+  }
+}
+
+// Right-side actions
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  flex-shrink: 0;
+}
+
+.site-icon-button {
+  background: none;
+  border: none;
+  border-radius: $radius-pill;
+  padding: $space-sm;
+  min-width: 0;
+  margin: 0;
+  color: $white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($white, 0.12);
+  }
+
+  &:focus, &:active {
+    background: rgba($white, 0.12);
+    color: $white;
+    outline: none;
+  }
+}
+
+.site-account-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  background: $indigo;
+  border: 1px solid rgba($white, 0.2);
+  border-radius: $radius-pill;
+  padding: $space-xs $space-md;
+}
+
+.site-account-button {
+  background: none;
+  border: none;
+  padding: $space-xs;
+  min-width: 0;
+  margin: 0;
+  color: $white;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover { background: none; }
+
+  &:focus, &:active {
+    background: none;
+    color: $white;
+    outline: none;
+  }
+}
+
+// Collapse the inline nav on smaller screens
+@media only screen and (max-width: $tablet-breakpoint) {
+  .site-nav,
+  .site-icon-button {
+    display: none;
+  }
+}

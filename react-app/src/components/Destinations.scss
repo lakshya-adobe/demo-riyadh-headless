@@ -1,0 +1,124 @@
+/*
+Copyright 2022 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+@import '../styles/variables';
+
+$destinationItemWidth: 260px;
+$destinationItemHeight: 200px;
+
+$destinationItemWidthMobile: 320px;
+$destinationItemHeightMobile: 240px;
+
+// Activity/country filter navigation
+.destination-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-md;
+  margin-top: $space-lg;
+
+  button {
+    margin-right: 0;
+
+    // Selected country is a filled indigo pill.
+    &.active {
+      background-color: $indigo;
+      color: $white;
+      border-color: $indigo;
+    }
+
+    &.active:hover {
+      background-color: $indigo-hover;
+      border-color: $indigo-hover;
+    }
+  }
+}
+
+.destination-items {
+  display: flex;
+  list-style: none;
+  margin-top: $space-lg;
+  padding: 0;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: normal;
+  gap: $space-lg;
+}
+
+.destination-item {
+  flex-basis: $destinationItemWidth;
+  flex-grow: 1;
+  max-width: $destinationItemWidth + 40px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: $surface;
+  border: 1px solid $border-color;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-raised;
+    background-color: $surface-raised;
+  }
+
+  > a {
+    display: block;
+    line-height: 0;
+  }
+}
+
+.destination-item-image {
+  width: 100%;
+  height: $destinationItemHeight;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+  display: block;
+
+  // Fallback banner for destinations without a background image.
+  &--placeholder {
+    background: $header-bg;
+  }
+}
+
+.destination-item-city {
+  font-weight: $font-weight-normal;
+  font-size: $font-size-large;
+  color: $text-color;
+  margin: 0;
+  padding: $space-lg $space-lg $space-xs;
+  line-height: 1.2;
+}
+
+.destination-item-country {
+  padding: 0 $space-lg $space-lg;
+  margin-top: auto;
+  font-size: $font-size-small;
+  color: $text-color-secondary;
+}
+
+@media only screen and (max-width: $tablet-breakpoint) {
+  .destination-item {
+    flex-basis: $destinationItemWidthMobile;
+    max-width: none;
+  }
+
+  .destination-item-image {
+    height: $destinationItemHeightMobile;
+  }
+}
+
+@media only screen and (max-width: $mobile-breakpoint) {
+  .destination-items {
+    justify-content: center;
+  }
+}

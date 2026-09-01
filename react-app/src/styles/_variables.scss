@@ -7,60 +7,95 @@ accordance with the terms of the Adobe license agreement accompanying
 it.
 */
 //_variables.scss
-
-//== Colors
 //
-//## Gray and brand colors for use across theme.
+// Design tokens derived from the Riyadh Air design system (see DESIGN.md).
+// Light mode: airy, premium, brand red accent on a soft neutral canvas.
 
-$black:                  #202020;
-$gray:                   #696969;
-$gray-light:             #EBEBEB;
-$gray-lighter:           #F7F7F7;
-$white:                  #FFFFFF;
-$yellow:                 #FFEA00;
-$blue:                   #0045FF;
-$red:                    #ff0048;
+//== Palette
+//
+//## Brand and neutral colors, extracted from riyadhair.com.
+
+$navy:                   #020817; // brand near-black, used for text
+$indigo:                 #250854; // brand primary: CTAs, header, active states
+$indigo-hover:           #351066; // raised/hover indigo
+$indigo-deep:            #12042e; // header gradient anchor
+$red:                    #ff0000; // brand red (used sparingly)
+$white:                  #ffffff; // card surfaces
+$off-white:              #f7f7f8; // page canvas
+$gray:                   #5b6572; // secondary text (AA on white)
+$gray-muted:             #98a0ab; // faint labels, captions
+$border-light:           #e4e7ec; // dividers, card outlines
 
 //== Typography
 //
 //## Font, line-height, and color for body text, headings, and more.
 
-$font-family-sans-serif:  "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-$font-family-serif:       "Asar",Georgia, "Times New Roman", Times, serif;
+$font-family-sans-serif:  "loewRiyadhAir", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-serif:       $font-family-sans-serif; // brand uses one typeface everywhere
 $font-family-base:        $font-family-sans-serif;
 
-$font-size-xsmall:		  12px;
+$font-size-xsmall:        13px;
 $font-size-small:         14px;
-$font-size-medium:		  16px;
-$font-size-base:          18px;
+$font-size-medium:        16px;
+$font-size-base:          16px;
 $font-size-large:         24px;
 $font-size-xlarge:        48px;
 
-$font-size-h1:            40px;
-$font-size-h2:            36px; 
-$font-size-h3:            24px; 
-$font-size-h4:            16px; 
-$font-size-h5:            14px;
-$font-size-h6:            10px; 
+$font-size-h1:            48px;
+$font-size-h2:            40px;
+$font-size-h3:            33px;
+$font-size-h4:            20px;
+$font-size-h5:            16px;
+$font-size-h6:            14px;
 
-$font-weight-normal:     normal;
-$font-weight-bold:       600;
+$font-weight-light:      300;
+$font-weight-normal:     400; // brand headings use weight 400
+$font-weight-bold:       700; // brand body copy is weight 700
 
-$line-height-base:        1.1;
+$line-height-base:        1.3;
 $line-height-computed:    floor(($font-size-base * $line-height-base));
 
 // Functional Colors
-$brand-primary:             $yellow;
-$body-bg:                   $white;
-$text-color:                $black;
-$text-color-inverse:        $gray-light;
-$link-color:                $blue;
+$brand-primary:             $indigo;
+$body-bg:                   $off-white;
+$surface:                   $white;
+$surface-raised:            #fbfbfd;
+$text-color:                $navy;
+$text-color-secondary:      $gray;
+$text-color-inverse:        $white;
+$link-color:                $indigo;
+$border-color:              $border-light;
+
+// Header (dark indigo bar, matches riyadhair.com)
+$header-bg:                 linear-gradient(180deg, #2a1550 0%, #{$indigo-deep} 100%);
+$header-height:             72px;
+
+// Buttons
+$btn-bg:                    $indigo;
+$btn-text:                  $white;
 
 //Layout
 $max-width: 1024px;
 
-// Spacing
-$gutter-padding: 12px; 
+// Spacing (12px base grid)
+$space-unit:      12px;
+$space-xs:        4px;
+$space-sm:        8px;
+$space-md:        12px;
+$space-lg:        24px;
+$space-xl:        36px;
+$space-xxl:       48px;
+$gutter-padding:  12px;
+
+// Radius
+$radius-button:   8px;
+$radius-card:     16px;
+$radius-lg:       24px;
+$radius-pill:     9999px;
+
+// Elevation (soft, neutral shadows for light surfaces)
+$shadow-card:     0 1px 2px rgba(16, 24, 40, 0.06), 0 10px 24px rgba(16, 24, 40, 0.08);
+$shadow-raised:   0 16px 32px rgba(16, 24, 40, 0.14);
 
 // Breakpoints
 $mobile-breakpoint: 768px;
