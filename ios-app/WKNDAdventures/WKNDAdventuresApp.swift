@@ -17,7 +17,12 @@ struct WKNDAdventuresApp: App {
         
     var body: some Scene {
         WindowGroup {
-            AdventureListView().environmentObject(initAem())
+            // TEMP: verify detail view
+            NavigationView {
+                DestinationDetailView(destinationName: "bangkok", initial: TestDestinationsAll.get()[0])
+            }
+            .navigationViewStyle(.stack)
+            .environmentObject(initAem())
         }
     }
     

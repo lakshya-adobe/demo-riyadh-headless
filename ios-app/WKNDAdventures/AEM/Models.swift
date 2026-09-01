@@ -12,128 +12,104 @@
 import Foundation
 
 /// # Models
-/// This file contains the Swift structs that map to the JSON objects in the AEM Headless responses used by this iOS application.
+/// Swift structs that map to the AEM Headless destinations responses.
 ///
+/// destinations-all:
 /// ```
-/// {                                   // Adventures
-///    data: {                          // Data
-///      adventureList: {               // AdventuresList
-///        items: [
-///          {                          // Adventure
-///            title: "My Adventure"
-///            slug: "my-adventure"
-///            ...
-///          }
-///        ]
-///      }
-///    }
-/// }
+/// { "data": { "destinationsList": { "items": [ Destination ] } } }
+/// ```
+///
+/// destination-by-path:
+/// ```
+/// { "data": { "destinationsByPath": { "item": Destination } } }
 /// ```
 
-struct Adventures: Decodable {
-    let data: Data
+// MARK: - Response envelopes
+
+struct DestinationsAllResponse: Decodable {
+    let data: DestinationsAllData
 }
 
-struct Data: Decodable {
-    let adventureList: AdventureList
+struct DestinationsAllData: Decodable {
+    let destinationsList: DestinationsList
 }
 
-struct AdventureList: Decodable {
-    let items: [Adventure]
+struct DestinationsList: Decodable {
+    let items: [Destination]
 }
 
-/// # Adventure
-/// Models a WKND adventure from the JSON response.
-/// This is a common model used for both the resulting data of the `wknd/adventures-all` and `wknd/adventure-by-slug` persisted queries, therefore some field are options.
-class Adventure: Identifiable, Decodable {
-    
+struct DestinationByPathResponse: Decodable {
+    let data: DestinationByPathData
+}
+
+struct DestinationByPathData: Decodable {
+    let destinationsByPath: DestinationByPathWrapper
+}
+
+struct DestinationByPathWrapper: Decodable {
+    let item: Destination?
+}
+
+// MARK: - Destination
+
+/// Models a Riyadh Air destination. Shared by both the destinations-all and
+/// destination-by-path queries, so query-specific fields are optional.
+struct Destination: Identifiable, Decodable {
+
     enum CodingKeys: String, CodingKey {
-        case title
+        case path = "_path"
         case slug
-        case price
-        case tripLength
-        case activity
-        case difficulty
-        case description
-        case itinerary
-        case primaryImage
+        case destinationCity
+        case destinationCountry
+        case backgroundImage
+        case destinationDetails
     }
-    
-    private let primaryImage: Image
-    private let descriptionMultiLine: MultiLine?
-    private let itineraryMultiLine: MultiLine?
-    
-    let id: UUID = UUID()
-    let title: String
-    let slug: String
-    let tripLength: String
-    let activity: String?
-    let difficulty: String?
 
-    var price: Double?
+    let path: String
+    let slug: String?
+    let destinationCity: String
+    let destinationCountry: String?
+    let backgroundImage: AemImage?
+    let destinationDetails: RichText?
 
-    var description: String {
-        return descriptionMultiLine?.plaintext ?? ""
+    // Stable identity from the unique content path.
+    var id: String { path }
+
+    /// Last path segment, used as the detail route id (e.g. "bangkok").
+    var name: String {
+        String(path.split(separator: "/").last ?? "")
     }
-    
-    var itinerary: String {
-        return itineraryMultiLine?.plaintext ?? ""
-    }
-    
-    func image() -> String {
-        if !self.primaryImage._dynamicUrl.isEmpty  {
-            return self.primaryImage._dynamicUrl
-        } else if !self.primaryImage._path.isEmpty  {
-            return self.primaryImage._path
+
+    /// Best available image path, preferring the dynamic (transformed) URL.
+    func imagePath() -> String? {
+        if let dynamicUrl = backgroundImage?._dynamicUrl, !dynamicUrl.isEmpty {
+            return dynamicUrl
         }
-        
-        return ""
+        if let path = backgroundImage?._path, !path.isEmpty {
+            return path
+        }
+        return nil
     }
-    
+
+    var detailsHtml: String {
+        destinationDetails?.html ?? ""
+    }
+
     func isEmpty() -> Bool {
-        return slug.isEmpty
+        destinationCity.isEmpty
     }
-    
-    required init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        
-        // Required fields
-        title = try values.decode(String.self, forKey: .title)
-        slug = try values.decode(String.self, forKey: .slug)
-        price = try values.decode(Double.self, forKey: .price)
-        tripLength = try values.decode(String.self, forKey: .tripLength)
-        primaryImage = try values.decode(Image.self, forKey: .primaryImage)
 
-        // Optional fields
-        activity = try values.decodeIfPresent(String.self, forKey: .activity)
-        difficulty = try values.decodeIfPresent(String.self, forKey: .difficulty)
-        descriptionMultiLine = try values.decodeIfPresent(MultiLine.self, forKey: .description)
-        itineraryMultiLine = try values.decodeIfPresent(MultiLine.self, forKey: .itinerary)
-    }
-    
-    init(title: String, slug: String, price: Double, tripLength: String, activity: String, difficulty: String, descriptionMultiLine: MultiLine?, itineraryMultiLine: MultiLine?, primaryImage: Image) {
-        self.title = title
-        self.slug = slug
-        self.price = price
-        self.tripLength = tripLength
-        self.activity = activity
-        self.difficulty = difficulty
-        self.descriptionMultiLine = descriptionMultiLine
-        self.itineraryMultiLine = itineraryMultiLine
-        self.primaryImage = primaryImage
-    }
-           
-    static func empty() -> Adventure {
-        return Adventure(title: "", slug: "", price: 0, tripLength: "", activity: "", difficulty: "", descriptionMultiLine: nil, itineraryMultiLine: nil, primaryImage: Image(_path: "", _dynamicUrl: ""))
+    static func empty() -> Destination {
+        Destination(path: "", slug: nil, destinationCity: "", destinationCountry: nil, backgroundImage: nil, destinationDetails: nil)
     }
 }
 
-struct Image: Decodable {
-    let _path: String
-    let _dynamicUrl: String
+struct AemImage: Decodable {
+    let _path: String?
+    let _dynamicUrl: String?
 }
 
-struct MultiLine: Decodable {
-    let plaintext: String?
+struct RichText: Decodable {
     let html: String?
+    let plaintext: String?
 }

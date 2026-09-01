@@ -1,0 +1,123 @@
+/*
+Copyright 2022 Adobe
+All Rights Reserved.
+
+NOTICE: Adobe permits you to use, modify, and distribute this file in
+accordance with the terms of the Adobe license agreement accompanying
+it.
+*/
+@import '../styles/variables';
+
+.flight-search {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  background: $white;
+  border-radius: $radius-pill;
+  box-shadow: $shadow-card;
+  padding: $space-md $space-md $space-md $space-xl;
+  margin: 0 auto $space-xl;
+  max-width: 900px;
+}
+
+.flight-search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 $space-md;
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid $border-color;
+
+  // "From" carries the longest value (RUH - Riyadh); give it more room.
+  &:first-of-type {
+    flex: 1.5;
+  }
+
+  &:last-of-type {
+    border-right: none;
+  }
+}
+
+.flight-search-label {
+  font-size: $font-size-xsmall;
+  color: $text-color-secondary;
+}
+
+.flight-search-value {
+  font-size: $font-size-medium;
+  font-weight: $font-weight-bold;
+  color: $text-color;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flight-search-placeholder {
+  color: $text-color-secondary;
+  font-weight: $font-weight-normal;
+}
+
+.flight-search-swap {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $text-color;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover { background: rgba($indigo, 0.06); }
+  &:focus, &:active { background: rgba($indigo, 0.06); color: $text-color; outline: none; }
+}
+
+.flight-search-submit {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: $radius-pill;
+  background: $indigo;
+  color: $white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover { background: $indigo-hover; }
+  &:focus, &:active { background: $indigo-hover; color: $white; outline: none; }
+}
+
+@media only screen and (max-width: $tablet-breakpoint) {
+  .flight-search {
+    flex-wrap: wrap;
+    border-radius: $radius-card;
+    padding: $space-lg;
+    gap: $space-sm;
+  }
+
+  .flight-search-field {
+    flex-basis: 40%;
+    border-right: none;
+    padding: $space-sm $space-md;
+  }
+
+  .flight-search-swap {
+    display: none;
+  }
+
+  .flight-search-submit {
+    margin-left: auto;
+  }
+}

@@ -101,22 +101,18 @@ export function useDestinations(params) {
  * @param {Object} params optional image-transform parameters (imageFormat, imageSeoName, imageWidth, imageQuality)
  * @returns a JSON object representing the Destination
  */
-export function useDestinationByPath(destinationPath, params) {
+export function useDestinationByPath(destinationPath) {
   const [destination, setDestination] = useState(null);
   const [errors, setErrors] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      // The key is 'destinationPath' as defined in the persisted query
-      const queryVariables = {
-        ...params,
-        destinationPath,
-      };
-
-      // Call the AEM GraphQL persisted query named "[graphql endpoint namespace]/destination-by-path" with parameters
+      // Send only destinationPath. The destinationDetails field (which carries the
+      // title, hero image and description) is only returned when the image-transform
+      // params are omitted; supplying them makes AEM return backgroundImage instead.
       const response = await fetchPersistedQuery(
         REACT_APP_GRAPHQL_ENDPOINT + "/destination-by-path",
-        queryVariables
+        { destinationPath }
       );
 
       if (response.err) {
@@ -134,9 +130,8 @@ export function useDestinationByPath(destinationPath, params) {
     // Call the internal fetchData() as per React best practices
     fetchData();
 
-  }, [destinationPath, params]);
+  }, [destinationPath]);
 
   return { destination, errors };
 }
-
 

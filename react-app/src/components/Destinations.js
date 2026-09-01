@@ -21,12 +21,12 @@ export function destinationName(path) {
 
 function Destinations() {
     const queryParameters = useMemo(() => ({ imageFormat: 'JPG', imageWidth: 1200, imageQuality: 80 }), []);
-    const { destinations, error } = useDestinations(queryParameters);
+    const { destinations, errors } = useDestinations(queryParameters);
     const [country, setCountry] = useState('');
 
     // Handle error and loading conditions
-    if (error) {
-        return <Error errorMessage={error} />;
+    if (errors) {
+        return <Error errorMessage={errors} />;
     } else if (!destinations) {
         return <Loading />;
     }
@@ -75,7 +75,7 @@ function DestinationListItem({ destination }) {
         <li className="destination-item">
             <Link
                 to={`/destination/${destinationName(_path)}`}
-                state={{ city: destinationCity, country: destinationCountry, image: imageUrl }}
+                state={{ city: destinationCity, country: destinationCountry }}
             >
                 {imageUrl ? (
                     <img className="destination-item-image" src={addAemHost(imageUrl)} alt={destinationCity} />

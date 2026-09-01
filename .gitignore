@@ -75,3 +75,5 @@ typings/
 .serenasitter/
 DESIGN.md
 .mcp.json
+.vercel
+.env*

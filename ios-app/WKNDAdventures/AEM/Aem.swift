@@ -58,48 +58,61 @@ class Aem: ObservableObject {
         SDWebImageDownloader.shared.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     }
     
-    /// # getAdventures()
-    /// Returns all WKND adventures using the `wknd-shared/adventures-all` persisted query.
-    /// For this func call to work, the `wknd-shared/adventures-all` query must be deployed to the AEM environment/service specified by the host
-    func getAdventures(params: [String:String], completion: @escaping ([Adventure]) ->  ()) {
-               
-        let request = makeRequest(persistedQueryName: "wknd-shared/adventures-all", params: params)
-        
+    /// # getDestinations()
+    /// Returns all Riyadh Air destinations using the `riyadh/destinations-all` persisted query.
+    /// For this func call to work, the `riyadh/destinations-all` query must be deployed to the AEM environment/service specified by the host
+    func getDestinations(completion: @escaping ([Destination]) ->  ()) {
+
+        let request = makeRequest(persistedQueryName: "riyadh/destinations-all")
+
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            if ((error) != nil) {
+            guard let data = data, error == nil, !data.isEmpty else {
                 print("Unable to connect to AEM GraphQL endpoint")
-                completion([])
-            } else if (!data!.isEmpty) {
-                let adventures = try! JSONDecoder().decode(Adventures.self, from: data!)
+                DispatchQueue.main.async { completion([]) }
+                return
+            }
+            do {
+                let response = try JSONDecoder().decode(DestinationsAllResponse.self, from: data)
                 DispatchQueue.main.async {
-                    completion(adventures.data.adventureList.items)
+                    completion(response.data.destinationsList.items)
                 }
+            } catch {
+                print("Unable to decode destinations: \(error)")
+                DispatchQueue.main.async { completion([]) }
             }
         }.resume();
     }
-    
-    
-    /// # getAdventureBySlug()
-    /// Return a single WKND adventure using the `wknd-shared/adventure-by-slug` persisted query.
-    /// 'slug`is a unique field, so this `adventureList` should have 0 or 1 results.
-    /// For this func call to work, the `wknd/adventure-by-slug` query must be deployed to the AEM environment/service specified by the host
-    func getAdventureBySlug(slug: String, completion: @escaping (Adventure) ->  ()) {
 
-        let request = makeRequest(persistedQueryName: "wknd-shared/adventure-by-slug", params: [ "slug": slug ] )
-                        
+
+    /// # getDestinationByPath()
+    /// Returns a single destination using the `riyadh/destination-by-path` persisted query.
+    /// For this func call to work, the `riyadh/destination-by-path` query must be deployed to the AEM environment/service specified by the host.
+    ///
+    /// Only `destinationPath` is sent: supplying the image-transform params makes the
+    /// endpoint return `backgroundImage` and omit `destinationDetails`, which is the
+    /// content this screen renders.
+    func getDestinationByPath(path: String, completion: @escaping (Destination) ->  ()) {
+
+        let orderedParams: [(String, String)] = [
+            ("destinationPath", path),
+        ]
+
+        let request = makeRequest(persistedQueryName: "riyadh/destination-by-path", params: orderedParams)
+
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            if ((error) != nil) {
+            guard let data = data, error == nil, !data.isEmpty else {
                 print("Unable to connect to AEM GraphQL endpoint")
-                //completion()
+                return
             }
-                    
-            if (!data!.isEmpty) {
-                let adventures = try! JSONDecoder().decode(Adventures.self, from: data!)
-                DispatchQueue.main.async {
-                    if (!adventures.data.adventureList.items.isEmpty) {
-                        completion(adventures.data.adventureList.items[0])
+            do {
+                let response = try JSONDecoder().decode(DestinationByPathResponse.self, from: data)
+                if let item = response.data.destinationsByPath.item {
+                    DispatchQueue.main.async {
+                        completion(item)
                     }
                 }
+            } catch {
+                print("Unable to decode destination: \(error)")
             }
         }.resume();
     }
@@ -111,11 +124,12 @@ class Aem: ObservableObject {
     }
         
     /// #makeRequest(..)
-    /// Generic method for constructing and executing AEM GraphQL persisted queries
-    private func makeRequest(persistedQueryName: String, params: [String: String] = [:]) -> URLRequest {
+    /// Generic method for constructing and executing AEM GraphQL persisted queries.
+    /// Params are an ordered list because AEM caches responses by the exact URL.
+    private func makeRequest(persistedQueryName: String, params: [(String, String)] = []) -> URLRequest {
         // Encode optional parameters as required by AEM
-        let persistedQueryParams = params.map { (param) -> String in
-            encode(string: ";\(param.key)=\(param.value)")
+        let persistedQueryParams = params.map { (key, value) -> String in
+            encode(string: ";\(key)=\(value)")
         }.joined(separator: "")
         
         // Construct the AEM GraphQL persisted query URL, including optional query params

@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/graphql/:path*",
+      "destination": "https://publish-p220753-e2271497.adobeaemcloud.com/graphql/:path*"
+    },
+    {
+      "source": "/content/:path*",
+      "destination": "https://publish-p220753-e2271497.adobeaemcloud.com/content/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://publish-p220753-e2271497.adobeaemcloud.com/api/:path*"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "https://publish-p220753-e2271497.adobeaemcloud.com/assets/:path*"
+    },
+    {
+      "source": "/adobe/:path*",
+      "destination": "https://publish-p220753-e2271497.adobeaemcloud.com/adobe/:path*"
+    }
+  ]
+}

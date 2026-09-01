@@ -20,10 +20,13 @@ const {
   REACT_APP_BASIC_AUTH_PASS,
 } = process.env;
 
+const useProxy = REACT_APP_USE_PROXY === "true"
+  || window.location.hostname.endsWith("vercel.app");
+
 // In a production application the serviceURL should be set to the production AEM Publish environment
 // In development the serviceURL can be set to '/' which will be a relative proxy is used (see ../authMethods.js) to avoid CORS issues
 
-const serviceURL = REACT_APP_USE_PROXY === "true" ? "/" : REACT_APP_HOST_URI;
+const serviceURL = useProxy ? "/" : REACT_APP_HOST_URI;
 
 // Get authorization based on environment variables
 // authorization is not needed when connecting to Publish environments
@@ -45,7 +48,15 @@ const aemHeadlessClient = new AEMHeadless({
 });
 
 // Prefix URLs with AEM Host
-export function addAemHost(url) {  
+export function addAemHost(url) {
+  if (!url) {
+    return url;
+  }
+
+  if (useProxy) {
+    return url.startsWith("/") ? url : `/${url.replace(/^https?:\/\/[^/]+/, "")}`;
+  }
+
   if (url.startsWith("/")) {
     return new URL(url, REACT_APP_HOST_URI).toString();
   }
