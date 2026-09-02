@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import aemHeadlessClient from "./aemHeadlessClient";
 
 // environment variable for configuring the headless client
-const { DISABLE_CACHE, REACT_APP_GRAPHQL_ENDPOINT} = process.env;
+const { REACT_APP_DISABLE_CACHE, REACT_APP_GRAPHQL_ENDPOINT} = process.env;
 
 /**
  * This file contains the React useEffect custom hooks that:
@@ -36,7 +36,7 @@ async function fetchPersistedQuery(persistedQueryName, queryParameters) {
   let err;
 
   // Do NOT disable cache in production. This toggle is this demo app is only to help you quickly explore AEM's Headless APIs without having to wait for cache expiration to see changes.
-  if (DISABLE_CACHE === "true") {
+  if (REACT_APP_DISABLE_CACHE === "true") {
     if (queryParameters === "undefined") {
       queryParameters = {};
     }
