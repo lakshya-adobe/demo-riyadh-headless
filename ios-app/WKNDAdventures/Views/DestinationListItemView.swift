@@ -57,9 +57,17 @@ struct DestinationListItemView: View {
 
 struct DestinationListItemView_Previews: PreviewProvider {
     static var previews: some View {
-        DestinationListItemView(destination: TestDestinationsAll.get()[0])
-            .environmentObject(Aem(scheme: "https", host: "localhost"))
-            .previewLayout(.fixed(width: 360, height: 320))
-            .padding()
+        DestinationListItemView(destination: Destination(
+            path: "/content/dam/riyadh/content-fragments/destinations/preview-destination",
+            slug: "saudi-arabia-riyadh",
+            destinationCity: "Riyadh",
+            destinationCountry: "Saudi Arabia",
+            backgroundImage: nil,
+            destinationDetails: nil
+        ))
+        .environmentObject(Aem(scheme: "https", host: "localhost"))
+        .previewLayout(.fixed(width: 360, height: 320))
+        .padding()
     }
 }
+

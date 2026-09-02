@@ -122,16 +122,29 @@ class Aem: ObservableObject {
     func imageUrl(path: String) -> URL {
         return URL(string: "\(self.scheme)://\(self.host)\(path)")!
     }
+
+    /// Whether to append a cache-busting timestamp to persisted-query requests.
+    /// Sourced from the DISABLE_CACHE build setting (demo use only).
+    private var disableCache: Bool {
+        (try? Configuration.value(for: "DISABLE_CACHE")) ?? false
+    }
         
     /// #makeRequest(..)
     /// Generic method for constructing and executing AEM GraphQL persisted queries.
     /// Params are an ordered list because AEM caches responses by the exact URL.
     private func makeRequest(persistedQueryName: String, params: [(String, String)] = []) -> URLRequest {
         // Encode optional parameters as required by AEM
-        let persistedQueryParams = params.map { (key, value) -> String in
+        var persistedQueryParams = params.map { (key, value) -> String in
             encode(string: ";\(key)=\(value)")
         }.joined(separator: "")
-        
+
+        // Cache-busting for demos ONLY: a unique timestamp forces a CDN cache miss so
+        // content-fragment updates appear immediately. Toggle with DISABLE_CACHE.
+        if disableCache {
+            let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+            persistedQueryParams += encode(string: ";timestamp=\(timestamp)")
+        }
+
         // Construct the AEM GraphQL persisted query URL, including optional query params
         let url: String = "\(self.scheme)://\(self.host)/graphql/execute.json/" + persistedQueryName + persistedQueryParams;
 

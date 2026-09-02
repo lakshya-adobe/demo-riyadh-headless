@@ -56,13 +56,16 @@ struct DestinationDetailView: View {
                 }
 
                 if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
-                    WebImage(url: url)
-                        .resizable()
-                        .indicator(.activity)
-                        .transition(.fade(duration: 0.4))
-                        .scaledToFill()
-                        .frame(height: 220)
+                    Color.clear
                         .frame(maxWidth: .infinity)
+                        .frame(height: 220)
+                        .overlay(
+                            WebImage(url: url)
+                                .resizable()
+                                .indicator(.activity)
+                                .transition(.fade(duration: 0.4))
+                                .scaledToFill()
+                        )
                         .clipped()
                         .cornerRadius(20)
                 }
@@ -231,8 +234,18 @@ private func captures(_ pattern: String, in text: String) -> [String] {
 struct DestinationDetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DestinationDetailView(destinationName: "bangkok", initial: TestDestinationsAll.get()[0])
-                .environmentObject(Aem(scheme: "https", host: "localhost"))
+            DestinationDetailView(
+                destinationName: "bangkok",
+                initial: Destination(
+                    path: "/content/dam/riyadh/content-fragments/destinations/bangkok",
+                    slug: "thailand-bangkok",
+                    destinationCity: "Bangkok",
+                    destinationCountry: "Thailand",
+                    backgroundImage: nil,
+                    destinationDetails: nil
+                )
+            )
+            .environmentObject(Aem(scheme: "https", host: "localhost"))
         }
     }
 }

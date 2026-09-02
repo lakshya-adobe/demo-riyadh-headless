@@ -15,6 +15,11 @@
 // The http/https protocol scheme used to access the AEM_HOST
 AEM_SCHEME = https
 
+// Cache-busting for demos ONLY. When true, a timestamp is appended to each GraphQL
+// persisted-query request so content-fragment updates appear immediately (bypasses the
+// CDN cache). Set to false for normal use to avoid extra origin load. Never enable in production.
+DISABLE_CACHE = true
+
 // Target hostname for AEM environment, do not include http:// or https://
 AEM_HOST = publish-p220753-e2271497.adobeaemcloud.com
 

@@ -30,14 +30,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>DISABLE_CACHE</key>
+	<string>$(DISABLE_CACHE)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UIAppFonts</key>
-	<array>
-		<string>LoewRiyadhAir-Light.ttf</string>
-		<string>LoewRiyadhAir-Regular.ttf</string>
-		<string>LoewRiyadhAir-Bold.ttf</string>
-	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -49,6 +45,12 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>LoewRiyadhAir-Light.ttf</string>
+		<string>LoewRiyadhAir-Regular.ttf</string>
+		<string>LoewRiyadhAir-Bold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
