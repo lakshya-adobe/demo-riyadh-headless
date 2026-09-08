@@ -15,7 +15,8 @@ import SDWebImage
 struct DestinationListView: View {
     @EnvironmentObject private var aem: Aem
     @State private var destinations: [Destination] = []
-    @State private var selectedCountry: String? = nil
+    @State private var selectedLanguage: ContentLanguage = .english
+    @State private var selectedCountry: String?
 
     init() {
         // Brand the navigation bar to the Riyadh Air dark indigo header.
@@ -30,25 +31,37 @@ struct DestinationListView: View {
     }
 
     private var countries: [String] {
-        Array(Set(destinations.compactMap { $0.destinationCountry })).sorted()
+        Array(Set(localizedDestinations.compactMap { $0.destinationCountry }))
+            .sorted {
+                $0.compare($1, options: [], range: nil, locale: selectedLanguage.locale) == .orderedAscending
+            }
+    }
+
+    private var localizedDestinations: [Destination] {
+        destinations.filter { selectedLanguage.contains(destinationPath: $0.path) }
+    }
+
+    private var activeCountry: String? {
+        guard let selectedCountry, countries.contains(selectedCountry) else {
+            return nil
+        }
+        return selectedCountry
     }
 
     private var visibleDestinations: [Destination] {
-        guard let selectedCountry = selectedCountry else { return destinations }
-        return destinations.filter { $0.destinationCountry == selectedCountry }
-    }
-
-    private func loadDestinations() {
-        aem.getDestinations { destinations in
-            self.destinations = destinations
-        }
+        guard let activeCountry else { return localizedDestinations }
+        return localizedDestinations.filter { $0.destinationCountry == activeCountry }
     }
 
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 20) {
-                    Text("Explore Destinations")
+                VStack(alignment: .leading, spacing: 20) {
+                    // Header (heading + country filter) is intentionally NOT lazy:
+                    // a horizontal ScrollView mis-measures its height inside a
+                    // LazyVStack, letting the first card overlap the filter row and
+                    // steal its taps. Only the destination cards need to be lazy.
+                    Text(selectedLanguage.destinationsHeading)
                         .font(Theme.heading(30))
                         .foregroundColor(Theme.textPrimary)
                         .padding(.horizontal)
@@ -56,11 +69,11 @@ struct DestinationListView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            CountryPill(label: "All", selected: selectedCountry == nil) {
+                            CountryPill(label: selectedLanguage.allDestinationsLabel, selected: activeCountry == nil) {
                                 selectedCountry = nil
                             }
                             ForEach(countries, id: \.self) { country in
-                                CountryPill(label: country, selected: selectedCountry == country) {
+                                CountryPill(label: country, selected: activeCountry == country) {
                                     selectedCountry = country
                                 }
                             }
@@ -68,12 +81,18 @@ struct DestinationListView: View {
                         .padding(.horizontal)
                     }
 
-                    ForEach(visibleDestinations) { destination in
-                        NavigationLink(destination: DestinationDetailView(destinationName: destination.name, initial: destination)) {
-                            DestinationListItemView(destination: destination)
+                    LazyVStack(alignment: .leading, spacing: 20) {
+                        ForEach(visibleDestinations) { destination in
+                            NavigationLink(destination: DestinationDetailView(
+                                destinationPath: destination.path,
+                                language: $selectedLanguage
+                            )) {
+                                DestinationListItemView(destination: destination)
+                            }
+                            .buttonStyle(.plain)
+                            .contentShape(Rectangle())
+                            .padding(.horizontal)
                         }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
                     }
                 }
                 .padding(.bottom, 24)
@@ -88,17 +107,63 @@ struct DestinationListView: View {
                         .scaledToFit()
                         .frame(height: 26)
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    LanguageSelector(selection: $selectedLanguage)
+                }
             }
-            .onAppear {
-                loadDestinations()
+            .task {
+                await loadDestinations()
             }
             .refreshable {
                 SDImageCache.shared.clearMemory()
-                SDImageCache.shared.clearDisk()
-                loadDestinations()
+                await SDImageCache.shared.clearDiskOnCompletion()
+                await loadDestinations()
             }
         }
         .navigationViewStyle(.stack)
+        .environment(\.layoutDirection, selectedLanguage == .arabic ? .rightToLeft : .leftToRight)
+    }
+
+    private func loadDestinations() async {
+        do {
+            destinations = try await aem.getDestinations()
+        } catch where Task.isCancelled {
+            return
+        } catch {
+            print("Unable to load destinations: \(error)")
+            destinations = []
+        }
+    }
+}
+
+/// Compact language menu that remains legible in the branded navigation bar.
+struct LanguageSelector: View {
+    @Binding var selection: ContentLanguage
+
+    var body: some View {
+        Menu {
+            ForEach(ContentLanguage.allCases) { language in
+                Button {
+                    selection = language
+                } label: {
+                    if language == selection {
+                        Label(language.displayName, systemImage: "checkmark")
+                    } else {
+                        Text(language.displayName)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "globe")
+                Text(selection.rawValue.uppercased())
+                    .font(Theme.bold(14))
+            }
+            .foregroundColor(.white)
+        }
+        .accessibilityLabel(selection.selectorAccessibilityLabel)
+        .accessibilityValue(selection.displayName)
+        .accessibilityIdentifier("language-selector")
     }
 }
 
@@ -117,9 +182,16 @@ struct CountryPill: View {
                 .foregroundColor(selected ? .white : Theme.indigo)
                 .background(selected ? Theme.indigo : Color.white)
                 .clipShape(Capsule())
-                .overlay(Capsule().stroke(Theme.indigo, lineWidth: 1.5))
+                .overlay {
+                    Capsule()
+                        .stroke(Theme.indigo, lineWidth: 1.5)
+                        .allowsHitTesting(false)
+                }
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityValue(selected ? "Selected" : "Not selected")
     }
 }
 

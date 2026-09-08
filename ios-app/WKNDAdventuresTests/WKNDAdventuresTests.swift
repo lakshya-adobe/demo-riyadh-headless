@@ -22,16 +22,52 @@ class WKNDAdventuresTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testEnglishLanguageMatchesOnlyEnglishLanguageMasterFragments() {
+        XCTAssertTrue(ContentLanguage.english.contains(
+            destinationPath: "/content/dam/riyadh/language-masters/en/content-fragments/destinations/bangkok"
+        ))
+        XCTAssertFalse(ContentLanguage.english.contains(
+            destinationPath: "/content/dam/riyadh/language-masters/ar/content-fragments/destinations/bangkok"
+        ))
+        XCTAssertFalse(ContentLanguage.english.contains(
+            destinationPath: "/content/dam/riyadh/content-fragments/destinations/bangkok"
+        ))
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    func testArabicLanguageMatchesLanguageMasterAndLiveCopyFragments() {
+        XCTAssertTrue(ContentLanguage.arabic.contains(
+            destinationPath: "/content/dam/riyadh/language-masters/ar/content-fragments/destinations/bangkok"
+        ))
+        XCTAssertTrue(ContentLanguage.arabic.contains(
+            destinationPath: "/content/dam/riyadh/ar/content-fragments/destinations/jeddah"
+        ))
+        XCTAssertFalse(ContentLanguage.arabic.contains(
+            destinationPath: "/content/dam/riyadh/language-masters/en/content-fragments/destinations/bangkok"
+        ))
+    }
+
+    func testLanguagePathMatchingRequiresAPathBoundary() {
+        XCTAssertFalse(ContentLanguage.english.contains(
+            destinationPath: "/content/dam/riyadh/language-masters/en/content-fragments/destinations-old/bangkok"
+        ))
+    }
+
+    func testLanguageBuildsDestinationPathUnderItsPrimaryRoot() {
+        XCTAssertEqual(
+            ContentLanguage.arabic.destinationPath(for: "bangkok"),
+            "/content/dam/riyadh/language-masters/ar/content-fragments/destinations/bangkok"
+        )
+    }
+
+    func testDetailRequestURLIncludesTheSelectedFragmentLanguage() throws {
+        let path = "/content/dam/riyadh/language-masters/ar/content-fragments/destinations/bangkok"
+        let request = try Aem(scheme: "https", host: "example.com").makeRequest(
+            persistedQueryName: "riyadh/destination-by-path",
+            params: [("destinationPath", path)]
+        )
+
+        let decodedURL = try XCTUnwrap(request.url?.absoluteString.removingPercentEncoding)
+        XCTAssertTrue(decodedURL.contains("destinationPath=\(path)"))
     }
 
 }

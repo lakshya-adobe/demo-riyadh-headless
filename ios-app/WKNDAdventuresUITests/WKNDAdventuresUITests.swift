@@ -26,13 +26,47 @@ class WKNDAdventuresUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testLanguageSelectorFiltersDestinations() throws {
         let app = XCUIApplication()
         app.launch()
 
-        // Use recording to get started writing UI tests.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssertTrue(app.staticTexts["Explore Destinations"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["Bangkok"].exists)
+        XCTAssertFalse(app.staticTexts["بانكوك"].exists)
+
+        let languageSelector = app.buttons["Language"]
+        XCTAssertTrue(languageSelector.waitForExistence(timeout: 2))
+        XCTAssertTrue(languageSelector.isHittable)
+        languageSelector.tap()
+
+        let arabicOption = app.buttons["العربية"]
+        XCTAssertTrue(arabicOption.waitForExistence(timeout: 2))
+        arabicOption.tap()
+
+        XCTAssertTrue(app.staticTexts["استكشف الوجهات"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["بانكوك"].exists)
+        XCTAssertFalse(app.staticTexts["Bangkok"].exists)
+    }
+
+    func testCountryTagFiltersDestinations() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Explore Destinations"].waitForExistence(timeout: 15))
+
+        let pakistanTag = app.buttons["Pakistan"]
+        XCTAssertTrue(pakistanTag.waitForExistence(timeout: 2))
+        XCTAssertTrue(pakistanTag.isHittable)
+        pakistanTag.tap()
+
+        let selected = NSPredicate(format: "value == %@", "Selected")
+        expectation(for: selected, evaluatedWith: pakistanTag)
+        waitForExpectations(timeout: 2)
+
+        XCTAssertTrue(app.staticTexts["Islamabad"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Bangkok"].waitForNonExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["Manila"].exists)
+        XCTAssertFalse(app.staticTexts["Mumbai"].exists)
     }
 
     func testLaunchPerformance() throws {

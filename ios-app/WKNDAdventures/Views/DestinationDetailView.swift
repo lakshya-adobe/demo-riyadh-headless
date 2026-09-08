@@ -17,31 +17,24 @@ import SDWebImageSwiftUI
 struct DestinationDetailView: View {
     @EnvironmentObject private var aem: Aem
 
-    let destinationName: String
-    @State private var destination: Destination
+    let destinationPath: String
+    @Binding private var language: ContentLanguage
     @State private var title: String = ""
     @State private var imageUrl: String?
     @State private var headingText: String = ""
     @State private var bodyText: String = ""
 
-    // All destination content fragments live under this parent path.
-    private static let destinationsRoot = "/content/dam/riyadh/content-fragments/destinations"
-
-    init(destinationName: String, initial: Destination) {
-        self.destinationName = destinationName
-        _destination = State(initialValue: initial)
+    private var requestedPath: String {
+        if language.contains(destinationPath: destinationPath) {
+            return destinationPath
+        }
+        let name = String(destinationPath.split(separator: "/").last ?? "")
+        return language.destinationPath(for: name)
     }
 
-    private func loadDestination() {
-        let path = "\(Self.destinationsRoot)/\(destinationName)"
-        aem.getDestinationByPath(path: path) { destination in
-            self.destination = destination
-            let parsed = parseDestinationDetails(destination.detailsHtml)
-            self.title = parsed.title
-            self.imageUrl = parsed.imageUrl
-            self.headingText = parsed.heading
-            self.bodyText = parsed.body
-        }
+    init(destinationPath: String, language: Binding<ContentLanguage>) {
+        self.destinationPath = destinationPath
+        _language = language
     }
 
     var body: some View {
@@ -91,8 +84,37 @@ struct DestinationDetailView: View {
         }
         .background(Theme.pageBg.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            loadDestination()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                LanguageSelector(selection: $language)
+            }
+        }
+        .task(id: requestedPath) {
+            await loadDestination(path: requestedPath)
+        }
+    }
+
+    private func loadDestination(path: String) async {
+        title = ""
+        imageUrl = nil
+        headingText = ""
+        bodyText = ""
+
+        do {
+            guard let destination = try await aem.getDestinationByPath(path: path) else {
+                return
+            }
+            try Task.checkCancellation()
+
+            let parsed = parseDestinationDetails(destination.detailsHtml)
+            title = parsed.title
+            imageUrl = parsed.imageUrl
+            headingText = parsed.heading
+            bodyText = parsed.body
+        } catch where Task.isCancelled {
+            return
+        } catch {
+            print("Unable to load destination at \(path): \(error)")
         }
     }
 }
@@ -235,15 +257,8 @@ struct DestinationDetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DestinationDetailView(
-                destinationName: "bangkok",
-                initial: Destination(
-                    path: "/content/dam/riyadh/content-fragments/destinations/bangkok",
-                    slug: "thailand-bangkok",
-                    destinationCity: "Bangkok",
-                    destinationCountry: "Thailand",
-                    backgroundImage: nil,
-                    destinationDetails: nil
-                )
+                destinationPath: "/content/dam/riyadh/language-masters/en/content-fragments/destinations/bangkok",
+                language: .constant(.english)
             )
             .environmentObject(Aem(scheme: "https", host: "localhost"))
         }

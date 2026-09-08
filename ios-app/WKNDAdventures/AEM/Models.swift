@@ -11,6 +11,82 @@
 
 import Foundation
 
+/// Languages supported by the Riyadh Air content-fragment tree.
+enum ContentLanguage: String, CaseIterable, Identifiable {
+    case english = "en"
+    case arabic = "ar"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .english:
+            return "English"
+        case .arabic:
+            return "العربية"
+        }
+    }
+
+    var destinationsHeading: String {
+        switch self {
+        case .english:
+            return "Explore Destinations"
+        case .arabic:
+            return "استكشف الوجهات"
+        }
+    }
+
+    var allDestinationsLabel: String {
+        switch self {
+        case .english:
+            return "All"
+        case .arabic:
+            return "الكل"
+        }
+    }
+
+    var selectorAccessibilityLabel: String {
+        switch self {
+        case .english:
+            return "Language"
+        case .arabic:
+            return "اللغة"
+        }
+    }
+
+    var locale: Locale {
+        Locale(identifier: rawValue)
+    }
+
+    /// Exact AEM roots accepted for this language. Arabic supports both the
+    /// language-master tree and the translated live-copy tree.
+    private var destinationRoots: [String] {
+        switch self {
+        case .english:
+            return [
+                "/content/dam/riyadh/language-masters/en/content-fragments/destinations",
+            ]
+        case .arabic:
+            return [
+                "/content/dam/riyadh/language-masters/ar/content-fragments/destinations",
+                "/content/dam/riyadh/ar/content-fragments/destinations",
+            ]
+        }
+    }
+
+    /// Returns true only for fragments at or below a configured root. The
+    /// separator check prevents similarly prefixed folders from matching.
+    func contains(destinationPath: String) -> Bool {
+        destinationRoots.contains { root in
+            destinationPath == root || destinationPath.hasPrefix("\(root)/")
+        }
+    }
+
+    func destinationPath(for name: String) -> String {
+        "\(destinationRoots[0])/\(name)"
+    }
+}
+
 /// # Models
 /// Swift structs that map to the AEM Headless destinations responses.
 ///
@@ -26,27 +102,27 @@ import Foundation
 
 // MARK: - Response envelopes
 
-struct DestinationsAllResponse: Decodable {
+struct DestinationsAllResponse: Decodable, Sendable {
     let data: DestinationsAllData
 }
 
-struct DestinationsAllData: Decodable {
+struct DestinationsAllData: Decodable, Sendable {
     let destinationsList: DestinationsList
 }
 
-struct DestinationsList: Decodable {
+struct DestinationsList: Decodable, Sendable {
     let items: [Destination]
 }
 
-struct DestinationByPathResponse: Decodable {
+struct DestinationByPathResponse: Decodable, Sendable {
     let data: DestinationByPathData
 }
 
-struct DestinationByPathData: Decodable {
+struct DestinationByPathData: Decodable, Sendable {
     let destinationsByPath: DestinationByPathWrapper
 }
 
-struct DestinationByPathWrapper: Decodable {
+struct DestinationByPathWrapper: Decodable, Sendable {
     let item: Destination?
 }
 
@@ -54,7 +130,7 @@ struct DestinationByPathWrapper: Decodable {
 
 /// Models a Riyadh Air destination. Shared by both the destinations-all and
 /// destination-by-path queries, so query-specific fields are optional.
-struct Destination: Identifiable, Decodable {
+struct Destination: Identifiable, Decodable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case path = "_path"
@@ -104,12 +180,12 @@ struct Destination: Identifiable, Decodable {
     }
 }
 
-struct AemImage: Decodable {
+struct AemImage: Decodable, Sendable {
     let _path: String?
     let _dynamicUrl: String?
 }
 
-struct RichText: Decodable {
+struct RichText: Decodable, Sendable {
     let html: String?
     let plaintext: String?
 }

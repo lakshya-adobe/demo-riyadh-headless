@@ -21,7 +21,13 @@ import SDWebImage
 /// + Adding specified authentication to the Image requests
 /// + Adjusting relative images paths to source from AEM
 ///
-class Aem: ObservableObject {
+final class Aem: ObservableObject {
+    enum Error: Swift.Error {
+        case invalidURL
+        case invalidResponse
+        case httpError(statusCode: Int)
+    }
+
     let scheme: String
     let host: String
     var username: String?
@@ -61,26 +67,10 @@ class Aem: ObservableObject {
     /// # getDestinations()
     /// Returns all Riyadh Air destinations using the `riyadh/destinations-all` persisted query.
     /// For this func call to work, the `riyadh/destinations-all` query must be deployed to the AEM environment/service specified by the host
-    func getDestinations(completion: @escaping ([Destination]) ->  ()) {
-
-        let request = makeRequest(persistedQueryName: "riyadh/destinations-all")
-
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let data = data, error == nil, !data.isEmpty else {
-                print("Unable to connect to AEM GraphQL endpoint")
-                DispatchQueue.main.async { completion([]) }
-                return
-            }
-            do {
-                let response = try JSONDecoder().decode(DestinationsAllResponse.self, from: data)
-                DispatchQueue.main.async {
-                    completion(response.data.destinationsList.items)
-                }
-            } catch {
-                print("Unable to decode destinations: \(error)")
-                DispatchQueue.main.async { completion([]) }
-            }
-        }.resume();
+    func getDestinations() async throws -> [Destination] {
+        let request = try makeRequest(persistedQueryName: "riyadh/destinations-all")
+        let response = try await execute(DestinationsAllResponse.self, request: request)
+        return response.data.destinationsList.items
     }
 
 
@@ -91,36 +81,20 @@ class Aem: ObservableObject {
     /// Only `destinationPath` is sent: supplying the image-transform params makes the
     /// endpoint return `backgroundImage` and omit `destinationDetails`, which is the
     /// content this screen renders.
-    func getDestinationByPath(path: String, completion: @escaping (Destination) ->  ()) {
-
+    func getDestinationByPath(path: String) async throws -> Destination? {
         let orderedParams: [(String, String)] = [
             ("destinationPath", path),
         ]
 
-        let request = makeRequest(persistedQueryName: "riyadh/destination-by-path", params: orderedParams)
-
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let data = data, error == nil, !data.isEmpty else {
-                print("Unable to connect to AEM GraphQL endpoint")
-                return
-            }
-            do {
-                let response = try JSONDecoder().decode(DestinationByPathResponse.self, from: data)
-                if let item = response.data.destinationsByPath.item {
-                    DispatchQueue.main.async {
-                        completion(item)
-                    }
-                }
-            } catch {
-                print("Unable to decode destination: \(error)")
-            }
-        }.resume();
+        let request = try makeRequest(persistedQueryName: "riyadh/destination-by-path", params: orderedParams)
+        let response = try await execute(DestinationByPathResponse.self, request: request)
+        return response.data.destinationsByPath.item
     }
     
     /// # imageUrl(..)
-    /// Prefixes AEM image paths wit the AEM scheme/host
-    func imageUrl(path: String) -> URL {
-        return URL(string: "\(self.scheme)://\(self.host)\(path)")!
+    /// Prefixes AEM image paths with the AEM scheme/host.
+    func imageUrl(path: String) -> URL? {
+        URL(string: "\(scheme)://\(host)\(path)")
     }
 
     /// Whether to append a cache-busting timestamp to persisted-query requests.
@@ -132,7 +106,7 @@ class Aem: ObservableObject {
     /// #makeRequest(..)
     /// Generic method for constructing and executing AEM GraphQL persisted queries.
     /// Params are an ordered list because AEM caches responses by the exact URL.
-    private func makeRequest(persistedQueryName: String, params: [(String, String)] = []) -> URLRequest {
+    func makeRequest(persistedQueryName: String, params: [(String, String)] = []) throws -> URLRequest {
         // Encode optional parameters as required by AEM
         var persistedQueryParams = params.map { (key, value) -> String in
             encode(string: ";\(key)=\(value)")
@@ -146,14 +120,33 @@ class Aem: ObservableObject {
         }
 
         // Construct the AEM GraphQL persisted query URL, including optional query params
-        let url: String = "\(self.scheme)://\(self.host)/graphql/execute.json/" + persistedQueryName + persistedQueryParams;
+        let urlString = "\(scheme)://\(host)/graphql/execute.json/" + persistedQueryName + persistedQueryParams
+        guard let url = URL(string: urlString) else {
+            throw Error.invalidURL
+        }
 
-        var request = URLRequest(url: URL(string: url)!);
+        var request = URLRequest(url: url)
 
         // Add authentication to the AEM GraphQL persisted query requests as defined by the iOS application's configuration
         request = addAuthHeaders(request: request)
         
         return request
+    }
+
+    private func execute<Response: Decodable & Sendable>(
+        _ responseType: Response.Type,
+        request: URLRequest
+    ) async throws -> Response {
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw Error.invalidResponse
+        }
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            throw Error.httpError(statusCode: httpResponse.statusCode)
+        }
+
+        return try JSONDecoder().decode(responseType, from: data)
     }
     
     /// #encode(..)
@@ -167,10 +160,10 @@ class Aem: ObservableObject {
     private func addAuthHeaders(request: URLRequest) -> URLRequest {
         var requestWithAuth = request;
         
-        if self.token != nil {
-            requestWithAuth.addValue("Bearer \(String(describing: self.token))", forHTTPHeaderField: "Authorization")
-        } else if self.username != nil && self.password != nil {
-            let basicAuth = encodeBasicAuth(username: self.username!, password: self.password!)
+        if let token {
+            requestWithAuth.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else if let username, let password {
+            let basicAuth = encodeBasicAuth(username: username, password: password)
             requestWithAuth.addValue("Basic \(basicAuth)", forHTTPHeaderField: "Authorization")
         }
         
@@ -180,6 +173,6 @@ class Aem: ObservableObject {
     /// #encodeBasicAuth(..)
     /// Base64 encodes basic auth username and password.
     private func encodeBasicAuth(username: String, password: String) -> String {
-        return (username + ":" + password).data(using: .utf8)!.base64EncodedString()
+        Data("\(username):\(password)".utf8).base64EncodedString()
     }
 }

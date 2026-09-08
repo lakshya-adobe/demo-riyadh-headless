@@ -19,7 +19,7 @@ struct TestDestinationsAll {
                 "destinationsList": {
                   "items": [
                     {
-                      "_path": "/content/dam/riyadh/content-fragments/destinations/bangkok",
+                      "_path": "/content/dam/riyadh/language-masters/en/content-fragments/destinations/bangkok",
                       "slug": "thailand-bangkok",
                       "destinationCity": "Bangkok",
                       "destinationCountry": "Thailand",
@@ -29,7 +29,7 @@ struct TestDestinationsAll {
                       }
                     },
                     {
-                      "_path": "/content/dam/riyadh/content-fragments/destinations/manila",
+                      "_path": "/content/dam/riyadh/language-masters/en/content-fragments/destinations/manila",
                       "slug": "philippines-manila",
                       "destinationCity": "Manila",
                       "destinationCountry": "Philippines",
@@ -53,7 +53,7 @@ struct TestDestinationByPath {
               "data": {
                 "destinationsByPath": {
                   "item": {
-                    "_path": "/content/dam/riyadh/content-fragments/destinations/bangkok",
+                    "_path": "/content/dam/riyadh/language-masters/en/content-fragments/destinations/bangkok",
                     "slug": "thailand-bangkok",
                     "destinationCity": "Bangkok",
                     "destinationCountry": "Thailand",
