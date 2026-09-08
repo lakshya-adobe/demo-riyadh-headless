@@ -8,6 +8,10 @@ it.
 */
 @import '../styles/variables';
 
+.hero {
+  background: $body-bg;
+}
+
 .hero-banner {
   position: relative;
   width: 100%;
@@ -28,21 +32,12 @@ it.
   display: block;
 }
 
-// Readability scrim: darker at the bottom where the copy sits
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  background: linear-gradient(180deg, rgba(2, 8, 23, 0.15) 0%, rgba(2, 8, 23, 0.15) 45%, rgba(2, 8, 23, 0.75) 100%);
-}
-
 .hero-content {
   width: 100%;
   max-width: $max-width;
   margin: 0 auto;
-  padding: 0 $space-lg $space-xxl;
-  color: $white;
+  padding: $space-xl $space-lg $space-xxl;
+  color: $text-color;
 }
 
 .hero-eyebrow {
@@ -51,12 +46,12 @@ it.
   letter-spacing: 0.14em;
   font-size: $font-size-small;
   font-weight: $font-weight-bold;
-  color: rgba($white, 0.9);
+  color: $text-color-secondary;
 }
 
 .hero-title {
   margin: 0 0 $space-sm;
-  color: $white;
+  color: $brand-primary;
   font-size: 56px;
   font-weight: $font-weight-normal;
   line-height: 1.05;
@@ -64,7 +59,7 @@ it.
 
 .hero-subtitle {
   margin: 0;
-  color: rgba($white, 0.9);
+  color: $text-color;
   font-size: $font-size-large;
   font-weight: $font-weight-normal;
   line-height: 1.3;

@@ -8,6 +8,7 @@ it.
 */
 import React from "react";
 import logo from "../images/riyadhair-logo-white.svg";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "../locale";
 import "./Footer.scss";
 
 // Footer content mirrors riyadhair.com; links open the live site in a new tab.
@@ -15,49 +16,49 @@ const RA_BASE = "https://www.riyadhair.com";
 
 const LINK_COLUMNS = [
     {
-        heading: "Riyadh Air",
+        headingKey: "riyadhAir",
         links: [
-            { label: "About us", href: "/en/about-us" },
-            { label: "Sfeer", href: "/en/sfeer" },
-            { label: "Riyadh Cargo", href: "/en/riyadh-cargo" },
-            { label: "Discover Riyadh", href: "/en/discover-riyadh" },
-            { label: "Airline partnerships", href: "/en/about-us/our-story/airline-partnerships" },
+            { labelKey: "aboutUs", path: "about-us" },
+            { labelKey: "sfeer", path: "sfeer" },
+            { labelKey: "riyadhCargo", path: "riyadh-cargo" },
+            { labelKey: "discoverRiyadh", path: "discover-riyadh" },
+            { labelKey: "airlinePartnerships", path: "about-us/our-story/airline-partnerships" },
         ],
     },
     {
-        heading: "Experience",
+        headingKey: "experience",
         links: [
-            { label: "Cabin", href: "/en/experience/cabin" },
-            { label: "Fleet", href: "/en/experience/fleet" },
-            { label: "Brand Sonic", href: "/en/experience/sonic-brand" },
+            { labelKey: "cabin", path: "experience/cabin" },
+            { labelKey: "fleet", path: "experience/fleet" },
+            { labelKey: "brandSonic", path: "experience/sonic-brand" },
         ],
     },
     {
-        heading: "Connect with us",
+        headingKey: "connectWithUs",
         links: [
-            { label: "Contact us", href: "/en/help/contact-us" },
-            { label: "Media hub", href: "/en/media-hub" },
-            { label: "Toolkit", href: "/en/toolkit" },
-            { label: "Careers", href: "/en/careers" },
+            { labelKey: "contactUs", path: "help/contact-us" },
+            { labelKey: "mediaHub", path: "media-hub" },
+            { labelKey: "toolkit", path: "toolkit" },
+            { labelKey: "careers", path: "careers" },
         ],
     },
     {
-        heading: "Business Solutions",
+        headingKey: "businessSolutions",
         links: [
-            { label: "Business Solutions", href: "/en/business-solution" },
-            { label: "MAR Program", href: "/en/mar-program" },
-            { label: "GTAA Addendum", href: "/en/gtaa-addendum" },
+            { labelKey: "businessSolutions", path: "business-solution" },
+            { labelKey: "marProgram", path: "mar-program" },
+            { labelKey: "gtaaAddendum", path: "gtaa-addendum" },
         ],
     },
 ];
 
 const LEGAL_LINKS = [
-    { label: "Sitemap", href: "/en/sitemap" },
-    { label: "Legal", href: "/en/legal" },
-    { label: "Terms of use", href: "/en/terms-of-use" },
-    { label: "Privacy policy", href: "/en/privacy-policy" },
-    { label: "Cookie policy", href: "/en/cookie-policy" },
-    { label: "Conditions of carriage", href: "/en/conditions-of-carriage" },
+    { labelKey: "sitemap", path: "sitemap" },
+    { labelKey: "legal", path: "legal" },
+    { labelKey: "termsOfUse", path: "terms-of-use" },
+    { labelKey: "privacyPolicy", path: "privacy-policy" },
+    { labelKey: "cookiePolicy", path: "cookie-policy" },
+    { labelKey: "conditionsOfCarriage", path: "conditions-of-carriage" },
 ];
 
 const SOCIALS = [
@@ -69,15 +70,23 @@ const SOCIALS = [
     { label: "LinkedIn", icon: LinkedInIcon },
 ];
 
-function footerLink({ label, href }) {
+function localizedHref(language, path) {
+    return `${RA_BASE}/${language}/${path}`;
+}
+
+function footerLink(link, labels, language) {
+    const label = labels[link.labelKey];
+
     return (
-        <a key={label} className="site-footer-link" href={`${RA_BASE}${href}`} target="_blank" rel="noopener noreferrer">
+        <a key={link.labelKey} className="site-footer-link" href={localizedHref(language, link.path)} target="_blank" rel="noopener noreferrer">
             {label}
         </a>
     );
 }
 
-function Footer() {
+function Footer({ language = DEFAULT_LANGUAGE }) {
+    const labels = LANGUAGES[language]?.footer ?? LANGUAGES[DEFAULT_LANGUAGE].footer;
+
     function handleSubscribe(event) {
         // Demo app: no backend to submit to.
         event.preventDefault();
@@ -88,35 +97,35 @@ function Footer() {
             <div className="site-footer-inner">
                 <div className="site-footer-top">
                     <div className="site-footer-brand">
-                        <img src={logo} className="site-footer-logo" alt="Riyadh Air" />
-                        <h2 className="site-footer-heading">Subscribe to our newsletter and be the first to know what's coming</h2>
+                        <img src={logo} className="site-footer-logo" alt={labels.logoAlt} />
+                        <h2 className="site-footer-heading">{labels.newsletterHeading}</h2>
 
                         <form className="site-newsletter" onSubmit={handleSubscribe}>
-                            <label className="site-newsletter-label" htmlFor="footer-email">Email address</label>
+                            <label className="site-newsletter-label" htmlFor="footer-email">{labels.emailLabel}</label>
                             <div className="site-newsletter-field">
-                                <input id="footer-email" type="email" placeholder="Email address" className="site-newsletter-input" />
-                                <button type="submit" className="site-newsletter-submit" aria-label="Subscribe">
+                                <input id="footer-email" type="email" placeholder={labels.emailLabel} className="site-newsletter-input" />
+                                <button type="submit" className="site-newsletter-submit" aria-label={labels.subscribeLabel}>
                                     <ArrowIcon />
                                 </button>
                             </div>
                             <label className="site-consent">
                                 <input type="checkbox" />
-                                <span>I consent to the processing of my personal data for the purpose of sending me direct marketing communications, updates and offers from Riyadh Air.</span>
+                                <span>{labels.consent}</span>
                             </label>
                             <p className="site-newsletter-terms">
-                                By signing up, you agree to Riyadh Air's{" "}
-                                <a href={`${RA_BASE}/en/terms-of-use`} target="_blank" rel="noopener noreferrer">Website Terms of Use</a>{" "}
-                                and confirm that you have read the{" "}
-                                <a href={`${RA_BASE}/en/privacy-policy`} target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+                                {labels.termsPrefix}{" "}
+                                <a href={localizedHref(language, "terms-of-use")} target="_blank" rel="noopener noreferrer">{labels.termsLink}</a>{" "}
+                                {labels.privacyPrefix}{" "}
+                                <a href={localizedHref(language, "privacy-policy")} target="_blank" rel="noopener noreferrer">{labels.privacyLink}</a>.
                             </p>
                         </form>
                     </div>
 
                     <div className="site-footer-columns">
                         {LINK_COLUMNS.map((column) => (
-                            <nav key={column.heading} className="site-footer-column" aria-label={column.heading}>
-                                <h3 className="site-footer-column-heading">{column.heading}</h3>
-                                {column.links.map(footerLink)}
+                            <nav key={column.headingKey} className="site-footer-column" aria-label={labels.columns[column.headingKey]}>
+                                <h3 className="site-footer-column-heading">{labels.columns[column.headingKey]}</h3>
+                                {column.links.map((link) => footerLink(link, labels.columns, language))}
                             </nav>
                         ))}
                     </div>
@@ -125,10 +134,10 @@ function Footer() {
                 <hr className="site-footer-divider" />
 
                 <div className="site-footer-bottom">
-                    <p className="site-footer-copyright">©2026 Copyright all rights reserved</p>
+                    <p className="site-footer-copyright">{labels.legal.copyright}</p>
 
                     <div className="site-footer-legal">
-                        {LEGAL_LINKS.map(footerLink)}
+                        {LEGAL_LINKS.map((link) => footerLink(link, labels.legal, language))}
                     </div>
 
                     <div className="site-footer-socials">
@@ -146,9 +155,9 @@ function Footer() {
                         ))}
                     </div>
 
-                    <span className="site-footer-endorsement" aria-label="A PIF Company">
+                    <span className="site-footer-endorsement" aria-label={labels.legal.pifCompany}>
                         <PifIcon />
-                        A PIF COMPANY
+                        {labels.legal.pifCompany}
                     </span>
                 </div>
             </div>

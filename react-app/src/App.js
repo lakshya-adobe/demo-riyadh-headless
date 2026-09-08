@@ -47,7 +47,7 @@ function LocalizedApp() {
       <main className="App">
         <Outlet />
       </main>
-      <Footer />
+      <Footer language={language} />
     </div>
   );
 }

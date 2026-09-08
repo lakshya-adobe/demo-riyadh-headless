@@ -25,7 +25,7 @@ function Home() {
 
     return (
       <div className="Home">
-        <HeroBanner />
+        <HeroBanner language={language} />
         {/* Embedded AEM Edge Delivery "hero-lab" block, isolated in shadow DOM */}
         <EdsBlock url={HERO_FRAGMENT_URL} />
         <div className="page">

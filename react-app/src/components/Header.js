@@ -9,24 +9,25 @@ it.
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../images/riyadhair-logo-white.svg";
-import { replacePathLanguage } from "../locale";
+import { DEFAULT_LANGUAGE, LANGUAGES, replacePathLanguage } from "../locale";
 import "./Header.scss";
 
 // Primary navigation mirrors riyadhair.com; links open the live site in a new tab.
 const RA_BASE = "https://www.riyadhair.com";
 const NAV_ITEMS = [
-    { label: "Plan & book", path: "plan-book" },
-    { label: "Manage", path: "manage" },
-    { label: "Experience", path: "experience" },
-    { label: "Discover Riyadh", path: "discover-riyadh" },
-    { label: "Sfeer", path: "sfeer" },
-    { label: "About us", path: "about-us" },
-    { label: "Help", path: "help" },
+    { key: "planBook", path: "plan-book" },
+    { key: "manage", path: "manage" },
+    { key: "experience", path: "experience" },
+    { key: "discoverRiyadh", path: "discover-riyadh" },
+    { key: "sfeer", path: "sfeer" },
+    { key: "aboutUs", path: "about-us" },
+    { key: "help", path: "help" },
 ];
 
 function Header({ language }) {
     const location = useLocation();
     const navigate = useNavigate();
+    const labels = LANGUAGES[language]?.header ?? LANGUAGES[DEFAULT_LANGUAGE].header;
 
     function handleLanguageChange(event) {
         const nextLanguage = event.target.value;
@@ -43,20 +44,20 @@ function Header({ language }) {
     return (
         <header className="site-header">
             <div className="site-header-inner">
-                <Link to={`/${language}`} className="site-logo-link" aria-label="Riyadh Air home">
-                    <img src={logo} className="site-logo" alt="Riyadh Air" />
+                <Link to={`/${language}`} className="site-logo-link" aria-label={labels.homeLabel}>
+                    <img src={logo} className="site-logo" alt={labels.logoAlt} />
                 </Link>
 
-                <nav className="site-nav" aria-label="Primary">
+                <nav className="site-nav" aria-label={labels.navLabel}>
                     {NAV_ITEMS.map((item) => (
                         <a
-                            key={item.label}
+                            key={item.key}
                             className="site-nav-link"
                             href={`${RA_BASE}/${language}/${item.path}`}
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            {item.label}
+                            {labels.navItems[item.key]}
                         </a>
                     ))}
                 </nav>
@@ -64,26 +65,26 @@ function Header({ language }) {
                 <div className="site-header-actions">
                     <label className="site-language-selector">
                         <span className="site-language-icon"><GlobeIcon /></span>
-                        <span className="visually-hidden">Language</span>
+                        <span className="visually-hidden">{labels.languageLabel}</span>
                         <select
                             className="site-language-select"
                             value={language}
                             onChange={handleLanguageChange}
-                            aria-label="Language"
+                            aria-label={labels.languageLabel}
                         >
                             <option value="en">EN</option>
                             <option value="ar">العربية</option>
                         </select>
                         <ChevronIcon />
                     </label>
-                    <button type="button" className="site-icon-button" aria-label="Cart">
+                    <button type="button" className="site-icon-button" aria-label={labels.cartLabel}>
                         <CartIcon />
                     </button>
                     <div className="site-account-pill">
-                        <button type="button" className="site-account-button" aria-label="Account">
+                        <button type="button" className="site-account-button" aria-label={labels.accountLabel}>
                             <UserIcon />
                         </button>
-                        <button type="button" className="site-account-button" aria-label="Menu">
+                        <button type="button" className="site-account-button" aria-label={labels.menuLabel}>
                             <MenuIcon />
                         </button>
                     </div>

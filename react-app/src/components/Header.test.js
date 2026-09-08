@@ -39,6 +39,24 @@ test('switches the URL language without losing the current page', async () => {
 
   expect(screen.getByTestId('location'))
     .toHaveTextContent('/ar/destination/bangkok?trip=1#details');
-  expect(screen.getByRole('link', { name: 'Riyadh Air home' }))
+  expect(screen.getByRole('link', { name: 'الصفحة الرئيسية لطيران الرياض' }))
     .toHaveAttribute('href', '/ar');
+});
+
+test('renders Arabic header labels on Arabic routes', () => {
+  render(
+    <MemoryRouter initialEntries={['/ar']}>
+      <Routes>
+        <Route path="/:language/*" element={<TestHeader />} />
+      </Routes>
+    </MemoryRouter>
+  );
+
+  expect(screen.getByRole('link', { name: 'الصفحة الرئيسية لطيران الرياض' }))
+    .toHaveAttribute('href', '/ar');
+  expect(screen.getByRole('navigation', { name: 'التنقل الرئيسي' }))
+    .toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'خطط واحجز' }))
+    .toHaveAttribute('href', 'https://www.riyadhair.com/ar/plan-book');
+  expect(screen.getByRole('combobox', { name: 'اللغة' })).toHaveValue('ar');
 });
