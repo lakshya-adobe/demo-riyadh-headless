@@ -9,13 +9,11 @@ it.
 import React from 'react';
 import { useParams } from "react-router-dom";
 import { useDestinationByPath } from "../api/usePersistedQueries";
+import { getDestinationRoot } from "../locale";
 import SearchBar from "./SearchBar";
 import './DestinationDetail.scss';
 import Error from "./Error";
 import Loading from "./Loading";
-
-// All destination content fragments live under this parent path.
-const DESTINATIONS_ROOT = '/content/dam/riyadh/content-fragments/destinations';
 
 /**
  * Decodes HTML entities (the destinationDetails html is double-escaped).
@@ -66,8 +64,8 @@ function parseDestinationDetails(rawHtml) {
 
 function DestinationDetail() {
     // The route param is the destination's content-path node name (e.g. "bangkok")
-    const { name } = useParams();
-    const destinationPath = `${DESTINATIONS_ROOT}/${name}`;
+    const { language, name } = useParams();
+    const destinationPath = `${getDestinationRoot(language)}/${name}`;
     const { destination, errors } = useDestinationByPath(destinationPath);
 
     // Handle error and loading conditions

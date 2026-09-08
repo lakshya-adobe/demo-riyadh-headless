@@ -7,27 +7,43 @@ accordance with the terms of the Adobe license agreement accompanying
 it.
 */
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../images/riyadhair-logo-white.svg";
+import { replacePathLanguage } from "../locale";
 import "./Header.scss";
 
 // Primary navigation mirrors riyadhair.com; links open the live site in a new tab.
 const RA_BASE = "https://www.riyadhair.com";
 const NAV_ITEMS = [
-    { label: "Plan & book", href: "/en/plan-book" },
-    { label: "Manage", href: "/en/manage" },
-    { label: "Experience", href: "/en/experience" },
-    { label: "Discover Riyadh", href: "/en/discover-riyadh" },
-    { label: "Sfeer", href: "/en/sfeer" },
-    { label: "About us", href: "/en/about-us" },
-    { label: "Help", href: "/en/help" },
+    { label: "Plan & book", path: "plan-book" },
+    { label: "Manage", path: "manage" },
+    { label: "Experience", path: "experience" },
+    { label: "Discover Riyadh", path: "discover-riyadh" },
+    { label: "Sfeer", path: "sfeer" },
+    { label: "About us", path: "about-us" },
+    { label: "Help", path: "help" },
 ];
 
-function Header() {
+function Header({ language }) {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    function handleLanguageChange(event) {
+        const nextLanguage = event.target.value;
+        navigate(
+            {
+                pathname: replacePathLanguage(location.pathname, nextLanguage),
+                search: location.search,
+                hash: location.hash,
+            },
+            { state: location.state }
+        );
+    }
+
     return (
         <header className="site-header">
             <div className="site-header-inner">
-                <Link to="/" className="site-logo-link" aria-label="Riyadh Air home">
+                <Link to={`/${language}`} className="site-logo-link" aria-label="Riyadh Air home">
                     <img src={logo} className="site-logo" alt="Riyadh Air" />
                 </Link>
 
@@ -36,7 +52,7 @@ function Header() {
                         <a
                             key={item.label}
                             className="site-nav-link"
-                            href={`${RA_BASE}${item.href}`}
+                            href={`${RA_BASE}/${language}/${item.path}`}
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -46,9 +62,20 @@ function Header() {
                 </nav>
 
                 <div className="site-header-actions">
-                    <button type="button" className="site-icon-button" aria-label="Select language">
-                        <GlobeIcon />
-                    </button>
+                    <label className="site-language-selector">
+                        <span className="site-language-icon"><GlobeIcon /></span>
+                        <span className="visually-hidden">Language</span>
+                        <select
+                            className="site-language-select"
+                            value={language}
+                            onChange={handleLanguageChange}
+                            aria-label="Language"
+                        >
+                            <option value="en">EN</option>
+                            <option value="ar">العربية</option>
+                        </select>
+                        <ChevronIcon />
+                    </label>
                     <button type="button" className="site-icon-button" aria-label="Cart">
                         <CartIcon />
                     </button>
@@ -63,6 +90,14 @@ function Header() {
                 </div>
             </div>
         </header>
+    );
+}
+
+function ChevronIcon() {
+    return (
+        <svg className="site-language-chevron" viewBox="0 0 12 8" width="12" height="8" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <path d="m1 1 5 5 5-5" />
+        </svg>
     );
 }
 

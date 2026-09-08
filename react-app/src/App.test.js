@@ -10,8 +10,27 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders the Riyadh Air logo', () => {
+jest.mock('./components/EdsBlock', () => function MockEdsBlock() {
+  return null;
+});
+
+jest.mock('./components/HeroBanner', () => function MockHeroBanner() {
+  return null;
+});
+
+jest.mock('./api/usePersistedQueries', () => ({
+  useDestinations: () => ({ destinations: [], errors: null }),
+  useDestinationByPath: () => ({ destination: null, errors: null }),
+}));
+
+test('redirects the root URL to English and renders the Riyadh Air logo', async () => {
+  window.scrollTo = jest.fn();
+  window.history.pushState({}, '', '/');
   render(<App />);
-  const logoElement = screen.getByAltText(/Riyadh Air/i);
-  expect(logoElement).toBeInTheDocument();
+
+  const homeLink = await screen.findByRole('link', { name: 'Riyadh Air home' });
+  expect(homeLink).toBeInTheDocument();
+  expect(window.location.pathname).toBe('/en');
+  expect(document.documentElement.lang).toBe('en');
+  expect(document.documentElement.dir).toBe('ltr');
 });

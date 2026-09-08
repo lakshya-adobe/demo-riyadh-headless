@@ -106,6 +106,8 @@ export function useDestinationByPath(destinationPath) {
   const [errors, setErrors] = useState(null);
 
   useEffect(() => {
+    let ignore = false;
+
     async function fetchData() {
       // Send only destinationPath. The destinationDetails field (which carries the
       // title, hero image and description) is only returned when the image-transform
@@ -114,6 +116,10 @@ export function useDestinationByPath(destinationPath) {
         REACT_APP_GRAPHQL_ENDPOINT + "/destination-by-path",
         { destinationPath }
       );
+
+      if (ignore) {
+        return;
+      }
 
       if (response.err) {
         // Capture errors from the HTTP request
@@ -127,11 +133,16 @@ export function useDestinationByPath(destinationPath) {
       }
     }
 
+    setDestination(null);
+    setErrors(null);
+
     // Call the internal fetchData() as per React best practices
     fetchData();
 
+    return () => {
+      ignore = true;
+    };
   }, [destinationPath]);
 
   return { destination, errors };
 }
-

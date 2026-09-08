@@ -10,6 +10,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDestinations } from "../api/usePersistedQueries";
 import { addAemHost } from "../api/aemHeadlessClient";
+import { DEFAULT_LANGUAGE, LANGUAGES, isDestinationForLanguage } from "../locale";
 import Error from "./Error";
 import Loading from "./Loading";
 import './Destinations.scss';
@@ -19,7 +20,7 @@ export function destinationName(path) {
     return path?.split('/').pop();
 }
 
-function Destinations() {
+function Destinations({ language = DEFAULT_LANGUAGE }) {
     const queryParameters = useMemo(() => ({ imageFormat: 'JPG', imageWidth: 1200, imageQuality: 80 }), []);
     const { destinations, errors } = useDestinations(queryParameters);
     const [country, setCountry] = useState('');
@@ -31,20 +32,27 @@ function Destinations() {
         return <Loading />;
     }
 
-    // Derive the unique list of countries for the filter, sorted alphabetically
-    const countries = [...new Set(destinations.map((d) => d.destinationCountry).filter(Boolean))].sort();
-    const visibleDestinations = country
-        ? destinations.filter((d) => d.destinationCountry === country)
-        : destinations;
+    const localizedDestinations = destinations.filter((destination) =>
+        isDestinationForLanguage(destination._path, language)
+    );
+
+    // Derive the unique list of countries for the filter, sorted for the active language.
+    const countries = [...new Set(localizedDestinations.map((d) => d.destinationCountry).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, language));
+    const activeCountry = countries.includes(country) ? country : '';
+    const visibleDestinations = activeCountry
+        ? localizedDestinations.filter((d) => d.destinationCountry === activeCountry)
+        : localizedDestinations;
+    const allLabel = LANGUAGES[language]?.allDestinations ?? LANGUAGES[DEFAULT_LANGUAGE].allDestinations;
 
     return (
         <div className="destinations">
             <div className="destination-nav">
-                <button className={country === '' ? 'active' : ''} onClick={() => setCountry('')}>All</button>
+                <button className={activeCountry === '' ? 'active' : ''} onClick={() => setCountry('')}>{allLabel}</button>
                 {countries.map((name) => (
                     <button
                         key={name}
-                        className={country === name ? 'active' : ''}
+                        className={activeCountry === name ? 'active' : ''}
                         onClick={() => setCountry(name)}
                     >
                         {name}
@@ -53,7 +61,7 @@ function Destinations() {
             </div>
             <ul className="destination-items">
                 {visibleDestinations.map((destination) => (
-                    <DestinationListItem key={destination._path} destination={destination} />
+                    <DestinationListItem key={destination._path} destination={destination} language={language} />
                 ))}
             </ul>
         </div>
@@ -61,7 +69,7 @@ function Destinations() {
 }
 
 // Render an individual destination card
-function DestinationListItem({ destination }) {
+function DestinationListItem({ destination, language }) {
     const { _path, destinationCity, destinationCountry, backgroundImage } = destination;
 
     // Must have a city to render
@@ -74,8 +82,9 @@ function DestinationListItem({ destination }) {
     return (
         <li className="destination-item">
             <Link
-                to={`/destination/${destinationName(_path)}`}
+                to={`/${language}/destination/${destinationName(_path)}`}
                 state={{ city: destinationCity, country: destinationCountry }}
+                aria-label={destinationCity}
             >
                 {imageUrl ? (
                     <img className="destination-item-image" src={addAemHost(imageUrl)} alt={destinationCity} />
